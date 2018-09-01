@@ -1,0 +1,21 @@
+---
+- name: Collect IPs
+  set_fact:
+      keepalivedhosts: "{{ groups['docker'] | map('extract', hostvars, ['ansible_default_ipv4', 'address'] ) | list | ipaddr }}"
+- name: Create command
+  set_fact:
+      peerlist: "{{ keepalivedhosts | join(\"', '\") }}"
+- name: Create container
+  docker_container:
+    name: keepalived
+    image: osixia/keepalived:latest
+    state: started
+    restart_policy: always
+    capabilities: NET_ADMIN
+    network_mode: "host"
+    env:
+      KEEPALIVED_PRIORITY: "{{ ansible_default_ipv4.address.split('.')[-1] }}"
+      KEEPALIVED_INTERFACE: "{{ ansible_default_ipv4.alias }}"
+      KEEPALIVED_VIRTUAL_IPS: "{{ vip_addr }}"
+      KEEPALIVED_UNICAST_PEERS: "#PYTHON2BASH:['{{ peerlist }}']"
+...

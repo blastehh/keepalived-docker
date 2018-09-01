@@ -1,0 +1,7 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: "https://github.com/blastehh/keepalived-docker"
+  description: "Install keepalived for Docker."
+  min_ansible_version: 2.4
